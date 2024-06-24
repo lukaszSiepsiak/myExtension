@@ -1,6 +1,6 @@
 const extensionVersion = chrome.runtime.getManifest().version;
 const updateUrl =
-  "https://your-github-username.github.io/extension-version.json"; // URL where the version info is stored
+  "https://github.com/lukaszSiepsiak/myExtension/blob/main/extension-version.json"; // URL where the version info is stored
 
 function checkForUpdate() {
   fetch(updateUrl)
