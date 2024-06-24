@@ -2,13 +2,13 @@ const extensionVersion = chrome.runtime.getManifest().version;
 const updateUrl =
   "https://lukaszsiepsiak.github.io/myExtension/extension-version.json"; // URL where the version info is stored
 
-function checkForUpdate() {
+function checkForUpdate(callback) {
   fetch(updateUrl)
     .then((response) => response.json())
     .then((data) => {
-      if (data.version !== extensionVersion) {
-        notifyUser();
-      }
+      const updateAvailable = data.version !== extensionVersion;
+      if (callback) callback(updateAvailable);
+      if (updateAvailable) notifyUser();
     })
     .catch((error) => console.error("Error checking for update:", error));
 }
@@ -31,5 +31,12 @@ chrome.notifications.onButtonClicked.addListener(
   }
 );
 
-chrome.runtime.onStartup.addListener(checkForUpdate);
-chrome.runtime.onInstalled.addListener(checkForUpdate);
+chrome.runtime.onStartup.addListener(() => checkForUpdate());
+chrome.runtime.onInstalled.addListener(() => checkForUpdate());
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === "checkVersion") {
+    checkForUpdate((updateAvailable) => sendResponse({ updateAvailable }));
+    return true; // Keep the message channel open for sendResponse
+  }
+});
