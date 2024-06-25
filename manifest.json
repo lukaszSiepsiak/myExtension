@@ -8,8 +8,7 @@
     "storage",
     "downloads",
     "notifications",
-    "management",
-    "runtime"
+    "management"
   ],
   "background": {
     "service_worker": "background.js"
