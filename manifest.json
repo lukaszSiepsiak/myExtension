@@ -3,7 +3,13 @@
   "name": "My Private Extension",
   "version": "1.2",
   "description": "A private extension for my web app",
-  "permissions": ["activeTab", "storage", "downloads", "notifications"],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "downloads",
+    "notifications",
+    "management"
+  ],
   "background": {
     "service_worker": "background.js"
   },
