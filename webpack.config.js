@@ -21,4 +21,5 @@ module.exports = {
       },
     ],
   },
+  devtool: "cheap-module-source-map", // Change the devtool option
 };
