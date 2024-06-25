@@ -1,5 +1,3 @@
-import { XMLParser } from "fast-xml-parser";
-
 const EXTENSION_ID = "chibebbaajpcnjnnmacjngefcoginbhe";
 const EXTENSION_URL = "https://lukaszsiepsiak.github.io/myExtension/update.xml";
 const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // Check every hour
@@ -13,13 +11,15 @@ async function checkForExtensionUpdate() {
   console.log(`Checking for updates for extension with ID: ${EXTENSION_ID}`);
 
   try {
-    const response = await fetch(EXTENSION_URL);
-    const text = await response.text();
-
-    // Parse the XML using fast-xml-parser
-    const parser = new XMLParser();
-    const result = parser.parse(text);
-    const latestVersion = result.gupdate.app.updatecheck["@_version"];
+    const response = await fetch(
+      "https://yourserver.com/extension/updates.xml"
+    );
+    const xmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+    const latestVersion = xmlDoc
+      .querySelector("updatecheck")
+      .getAttribute("version");
 
     chrome.management.getSelf((extensionInfo) => {
       const currentVersion = extensionInfo.version;
@@ -34,22 +34,26 @@ async function checkForExtensionUpdate() {
 
 // Function to notify the user about the update
 function notifyUserAboutUpdate(latestVersion) {
-  chrome.notifications.create({
-    type: "basic",
-    iconUrl: "icons/icon48.png",
-    title: "Extension Update Available",
-    message: `A new version (${latestVersion}) of the extension is available.`,
-    buttons: [{ title: "Update Now" }],
-    priority: 0,
-  });
+  try {
+    chrome.notifications.create({
+      type: "basic",
+      //iconUrl: "./icons/icon48.png",
+      title: "Extension Update Available",
+      message: `A new version (${latestVersion}) of the extension is available.`,
+      buttons: [{ title: "Update Now" }],
+      priority: 0,
+    });
 
-  chrome.notifications.onButtonClicked.addListener(
-    (notificationId, buttonIndex) => {
-      if (buttonIndex === 0) {
-        chrome.runtime.reload();
+    chrome.notifications.onButtonClicked.addListener(
+      (notificationId, buttonIndex) => {
+        if (buttonIndex === 0) {
+          chrome.runtime.reload();
+        }
       }
-    }
-  );
+    );
+  } catch (error) {
+    console.error("Failed to create notification:", error);
+  }
 }
 
 // Check for updates periodically

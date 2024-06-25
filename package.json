@@ -4,7 +4,6 @@
   "description": "",
   "main": "background.js",
   "dependencies": {
-    "fast-xml-parser": "^4.4.0",
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4"
   },

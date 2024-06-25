@@ -3,13 +3,7 @@
   "name": "My Private Extension",
   "version": "1.2",
   "description": "A private extension for my web app",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "downloads",
-    "notifications",
-    "management"
-  ],
+  "permissions": ["activeTab", "storage", "downloads", "notifications"],
   "background": {
     "service_worker": "dist/background.bundle.js"
   },
@@ -20,15 +14,10 @@
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "src/icons/icon16.png",
-      "48": "src/icons/icon48.png",
-      "128": "src/icons/icon128.png"
-    }
+    "default_popup": "popup.html"
   },
   "update_url": "https://lukaszsiepsiak.github.io/myExtension/update.xml",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src https://* http://* data:"
   }
 }
