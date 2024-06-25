@@ -1,3 +1,5 @@
+import xml2js from "xml2js";
+
 const EXTENSION_ID = "chibebbaajpcnjnnmacjngefcoginbhe";
 const EXTENSION_URL = "https://lukaszsiepsiak.github.io/myExtension/update.xml";
 const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // Check every hour
@@ -10,20 +12,28 @@ chrome.runtime.onInstalled.addListener(() => {
 async function checkForExtensionUpdate() {
   console.log(`Checking for updates for extension with ID: ${EXTENSION_ID}`);
 
-  const response = await fetch(EXTENSION_URL);
-  const xmlText = await response.text();
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-  const latestVersion = xmlDoc
-    .querySelector("updatecheck")
-    .getAttribute("version");
+  try {
+    const response = await fetch(EXTENSION_URL);
+    const text = await response.text();
 
-  chrome.management.getSelf((extensionInfo) => {
-    const currentVersion = extensionInfo.version;
-    if (currentVersion !== latestVersion) {
-      notifyUserAboutUpdate(latestVersion);
-    }
-  });
+    // Parse the XML using xml2js
+    xml2js.parseString(text, (err, result) => {
+      if (err) {
+        console.error("Failed to parse XML:", err);
+        return;
+      }
+
+      const latestVersion = result.gupdate.app[0].updatecheck[0].$.version;
+      chrome.management.getSelf((extensionInfo) => {
+        const currentVersion = extensionInfo.version;
+        if (currentVersion !== latestVersion) {
+          notifyUserAboutUpdate(latestVersion);
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Error checking for extension update:", error);
+  }
 }
 
 // Function to notify the user about the update
