@@ -11,22 +11,30 @@ async function checkForExtensionUpdate() {
   console.log(`Checking for updates for extension with ID: ${EXTENSION_ID}`);
 
   try {
-    const response = await fetch(
-      "https://yourserver.com/extension/updates.xml"
-    );
-    const xmlText = await response.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-    const latestVersion = xmlDoc
-      .querySelector("updatecheck")
-      .getAttribute("version");
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", EXTENSION_URL, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          const xmlText = xhr.responseText;
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+          const latestVersion = xmlDoc
+            .querySelector("updatecheck")
+            .getAttribute("version");
 
-    chrome.management.getSelf((extensionInfo) => {
-      const currentVersion = extensionInfo.version;
-      if (currentVersion !== latestVersion) {
-        notifyUserAboutUpdate(latestVersion);
+          chrome.management.getSelf((extensionInfo) => {
+            const currentVersion = extensionInfo.version;
+            if (currentVersion !== latestVersion) {
+              notifyUserAboutUpdate(latestVersion);
+            }
+          });
+        } else {
+          console.error("Failed to fetch updates.xml. Status:", xhr.status);
+        }
       }
-    });
+    };
+    xhr.send();
   } catch (error) {
     console.error("Error checking for extension update:", error);
   }
@@ -37,7 +45,7 @@ function notifyUserAboutUpdate(latestVersion) {
   try {
     chrome.notifications.create({
       type: "basic",
-      //iconUrl: "./icons/icon48.png",
+      iconUrl: "./icons/icon48.png",
       title: "Extension Update Available",
       message: `A new version (${latestVersion}) of the extension is available.`,
       buttons: [{ title: "Update Now" }],
