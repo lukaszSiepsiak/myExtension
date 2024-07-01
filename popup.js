@@ -4,3 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("extension-version").innerText =
     "Version: " + manifest.version;
 });
+
+document.getElementById("updateButton").addEventListener("click", () => {
+  chrome.runtime.sendMessage({ action: "checkForUpdate" });
+});
